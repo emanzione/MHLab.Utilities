@@ -3,6 +3,17 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageVersion>0.1.0</PackageVersion>
+        <Version>0.1.0</Version>
+        <Title>MHLab.Utilities</Title>
+        <Authors>Emanuele Manzione</Authors>
+        <Company>MHLab</Company>
+        <Description>A collection of general purpose utilities for C# and .NET.</Description>
+        <PackageProjectUrl>https://github.com/manhunterita/MHLab.Utilities</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/manhunterita/MHLab.Utilities</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
     </PropertyGroup>
 
     <ItemGroup>
