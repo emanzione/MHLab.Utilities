@@ -49,19 +49,11 @@ namespace MHLab.Utilities.Collections.Stackonly
 
         public ref TItem this[int index] => ref _buffer[index];
 
-        public Span<TItem> GetBuffer()
-        {
-            return _buffer;
-        }
-
         public bool Push(TItem item)
         {
             if (IsFull) return false;
 
-            var index = _count;
-            _count++;
-
-            _buffer[index] = item;
+            _buffer[_count++] = item;
 
             return true;
         }
@@ -70,10 +62,7 @@ namespace MHLab.Utilities.Collections.Stackonly
         {
             if (IsEmpty) ThrowInvalidOperationException();
 
-            var index = _count - 1;
-            _count--;
-
-            return ref _buffer[index];
+            return ref _buffer[--_count];
         }
 
         public ref TItem Peek()

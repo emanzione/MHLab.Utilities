@@ -54,10 +54,7 @@ namespace MHLab.Utilities.Collections.Stackonly.Expandable
         {
             if (IsFull) return false;
 
-            var index = _count;
-            _count++;
-
-            _buffer[index] = item;
+            _buffer[_count++] = item;
 
             return true;
         }
@@ -66,10 +63,7 @@ namespace MHLab.Utilities.Collections.Stackonly.Expandable
         {
             if (IsEmpty) ThrowInvalidOperationException();
 
-            var index = _count - 1;
-            _count--;
-
-            return ref _buffer[index];
+            return ref _buffer[--_count];
         }
 
         public ref TItem Peek()
