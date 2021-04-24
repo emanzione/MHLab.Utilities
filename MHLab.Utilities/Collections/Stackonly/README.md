@@ -72,4 +72,5 @@ You can find more examples about the usage by looking at the tests.
 
 ### TODO
 
-- Adding a benchmark to measure how these collections perform against standard .NET collections
+- Add a benchmark to measure how these collections perform against standard .NET collections
+- Add additional collections and data structures
