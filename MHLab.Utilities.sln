@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MHLab.Utilities", "MHLab.Ut
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MHLab.Utilities.Tests", "MHLab.Utilities.Tests\MHLab.Utilities.Tests.csproj", "{FED11940-7BDE-4F91-A529-97D290DEB1F6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MHLab.Utilities.Benchmarks", "MHLab.Utilities.Benchmarks\MHLab.Utilities.Benchmarks.csproj", "{52F8EA35-8460-46DD-BC20-C9348DAE5A84}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{FED11940-7BDE-4F91-A529-97D290DEB1F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FED11940-7BDE-4F91-A529-97D290DEB1F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FED11940-7BDE-4F91-A529-97D290DEB1F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52F8EA35-8460-46DD-BC20-C9348DAE5A84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52F8EA35-8460-46DD-BC20-C9348DAE5A84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52F8EA35-8460-46DD-BC20-C9348DAE5A84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52F8EA35-8460-46DD-BC20-C9348DAE5A84}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
