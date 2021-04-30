@@ -10,5 +10,6 @@ You can find additional documentation in the project sub-folders as `README.md` 
 ## Content
 
 - [Assertions](https://github.com/manhunterita/MHLab.Utilities/tree/master/MHLab.Utilities/Asserts)
+- [Logging](https://github.com/manhunterita/MHLab.Utilities/tree/master/MHLab.Utilities/Logs)
 - [Stack-allocated Collections](https://github.com/manhunterita/MHLab.Utilities/tree/master/MHLab.Utilities/Collections/Stackonly)
 - [Stack-allocated expandable Collections](https://github.com/manhunterita/MHLab.Utilities/tree/master/MHLab.Utilities/Collections/Stackonly/Expandable)
