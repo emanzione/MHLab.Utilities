@@ -4,8 +4,8 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>0.2.0</PackageVersion>
-        <Version>0.2.0</Version>
+        <PackageVersion>0.3.0</PackageVersion>
+        <Version>0.3.0</Version>
         <Title>MHLab.Utilities</Title>
         <Authors>Emanuele Manzione</Authors>
         <Company>MHLab</Company>
