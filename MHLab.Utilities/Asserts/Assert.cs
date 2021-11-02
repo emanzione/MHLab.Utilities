@@ -70,5 +70,14 @@ namespace MHLab.Utilities.Asserts
         {
             if (obj == null) Fail(message);
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [DebuggerHidden]
+        public static void IsTypeOf<TTypeToCheck>(object obj)
+        {
+            NotNull(obj);
+            if (obj is TTypeToCheck) return;
+            Fail($"Expected [{typeof(TTypeToCheck).FullName}], found [{obj.GetType().FullName}]");
+        }
     }
 }
