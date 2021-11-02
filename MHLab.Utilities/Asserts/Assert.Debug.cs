@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace MHLab.Utilities.Asserts
 {
@@ -31,6 +32,7 @@ namespace MHLab.Utilities.Asserts
         public static class Debug
         {
             [Conditional("DEBUG")]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             [DebuggerHidden]
             public static void Fail()
             {
@@ -38,6 +40,7 @@ namespace MHLab.Utilities.Asserts
             }
 
             [Conditional("DEBUG")]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             [DebuggerHidden]
             public static void Fail(string message)
             {
@@ -45,6 +48,7 @@ namespace MHLab.Utilities.Asserts
             }
 
             [Conditional("DEBUG")]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             [DebuggerHidden]
             public static void Check(bool condition)
             {
@@ -52,6 +56,7 @@ namespace MHLab.Utilities.Asserts
             }
 
             [Conditional("DEBUG")]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             [DebuggerHidden]
             public static void Check(bool condition, string message)
             {
@@ -59,6 +64,7 @@ namespace MHLab.Utilities.Asserts
             }
 
             [Conditional("DEBUG")]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             [DebuggerHidden]
             public static void NotNull(object obj)
             {
@@ -66,6 +72,7 @@ namespace MHLab.Utilities.Asserts
             }
 
             [Conditional("DEBUG")]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             [DebuggerHidden]
             public static void NotNull(object obj, string message)
             {
