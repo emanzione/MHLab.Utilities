@@ -79,5 +79,13 @@ namespace MHLab.Utilities.Asserts
             if (obj is TTypeToCheck) return;
             Fail($"Expected [{typeof(TTypeToCheck).FullName}], found [{obj.GetType().FullName}]");
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [DebuggerHidden]
+        public static void IsTypeOf<TTypeToCheck, TExpectedType>()
+        {
+            if (typeof(TTypeToCheck) != typeof(TExpectedType))
+                Fail($"Expected [{typeof(TExpectedType).FullName}], found [{typeof(TTypeToCheck).FullName}]");
+        }
     }
 }
