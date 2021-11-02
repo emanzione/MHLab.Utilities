@@ -20,4 +20,9 @@
       <PackageReference Include="System.Memory" Version="4.5.4" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Communication" />
+      <Folder Include="Types" />
+    </ItemGroup>
+
 </Project>
