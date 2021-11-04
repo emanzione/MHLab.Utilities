@@ -50,7 +50,8 @@ namespace MHLab.Utilities.Messaging
             while (_messages.Count > 0)
             {
                 var message = _messages.Dequeue();
-                HandleDelivery(message, history);
+                HandleDelivery(message);
+                history.Push(new MessageEnvelope<TConstraint>(message));
             }
         }
 
@@ -61,16 +62,6 @@ namespace MHLab.Utilities.Messaging
                 var message = _messages.Dequeue();
                 HandleDelivery(message);
             }
-        }
-
-        private void HandleDelivery(TMessage message, IMessageHistory<TConstraint> history)
-        {
-            foreach (var handler in _handlers)
-            {
-                handler.OnMessageDelivered(message);
-            }
-            
-            history.Push(new MessageEnvelope<TConstraint>(message));
         }
 
         private void HandleDelivery(TMessage message)
