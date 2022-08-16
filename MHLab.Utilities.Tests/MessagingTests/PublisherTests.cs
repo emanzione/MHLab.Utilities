@@ -34,6 +34,17 @@ namespace MHLab.Utilities.Tests.MessagingTests
 
             Assert.AreEqual(5, _handler.Counter);
         }
+        
+        [Test]
+        public void PublishImmediate_Message_Correctly()
+        {
+            _publisher.Subscribe(_handler);
+            Assert.AreEqual(0, _handler.Counter);
+
+            _publisher.PublishImmediate(new TestMessage(5));
+
+            Assert.AreEqual(5, _handler.Counter);
+        }
 
         [Test]
         public void Message_Is_Correctly_Delivered_Just_Once()

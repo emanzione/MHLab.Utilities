@@ -29,6 +29,8 @@ namespace MHLab.Utilities.Messaging
     public interface IPublisher<TConstraint> : IDisposable
     {
         void Publish<TMessage>(TMessage message) where TMessage : struct, TConstraint;
+        void PublishImmediate<TMessage>(TMessage message) where TMessage : struct, TConstraint;
+        void PublishImmediate<TMessage>(TMessage message, IMessageHistory<TConstraint> history) where TMessage : struct, TConstraint;
 
         HandlerSubscription Subscribe<TMessage>(IMessageHandler<TMessage, TConstraint> handler)
             where TMessage : struct, TConstraint;

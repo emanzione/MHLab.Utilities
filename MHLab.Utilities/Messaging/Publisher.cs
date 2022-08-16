@@ -61,6 +61,35 @@ namespace MHLab.Utilities.Messaging
                 }
             }
         }
+        
+        public void PublishImmediate<TMessage>(TMessage message) where TMessage : struct, TConstraint
+        {
+            foreach (var subscriber in _subscribers)
+            {
+                if (subscriber is Subscriber<TMessage, TConstraint> specializedSubscriber)
+                {
+                    Assert.Debug.NotNull(specializedSubscriber);
+                    specializedSubscriber.AddMessage(message);
+                    specializedSubscriber.Deliver();
+                    break;
+                }
+            }
+        }
+        
+        public void PublishImmediate<TMessage>(TMessage message, IMessageHistory<TConstraint> history) where TMessage : struct, TConstraint
+        {
+            foreach (var subscriber in _subscribers)
+            {
+                if (subscriber is Subscriber<TMessage, TConstraint> specializedSubscriber)
+                {
+                    Assert.Debug.NotNull(specializedSubscriber);
+                    Assert.Debug.NotNull(history);
+                    specializedSubscriber.AddMessage(message);
+                    specializedSubscriber.Deliver(history);
+                    break;
+                }
+            }
+        }
 
         public HandlerSubscription Subscribe<TMessage>(IMessageHandler<TMessage, TConstraint> handler) where TMessage : struct, TConstraint
         {

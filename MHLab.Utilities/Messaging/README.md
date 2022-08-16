@@ -73,8 +73,13 @@ Now you can start publishing messages:
 publisher.Publish(new YourMessage() { TestValue = 1 });
 ```
 
+### Delivery
+
+
 Remember that published messages will not be delivered until you call:
 
 ```csharp
 publisher.Deliver();
 ```
+
+This is to allow you to trigger the delivery in the moment that fits the best with your own use case.
