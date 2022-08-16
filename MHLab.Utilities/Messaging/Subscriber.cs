@@ -32,16 +32,27 @@ namespace MHLab.Utilities.Messaging
 
         private readonly List<IMessageHandler<TMessage, TConstraint>> _handlers;
         private readonly Queue<TMessage>                              _messages;
+        
+        private readonly List<IMessageHandler<TMessage, TConstraint>> _handlersSnapshot;
 
         public Subscriber()
         {
-            _handlers = new List<IMessageHandler<TMessage, TConstraint>>();
-            _messages = new Queue<TMessage>();
+            _handlers         = new List<IMessageHandler<TMessage, TConstraint>>();
+            _handlersSnapshot = new List<IMessageHandler<TMessage, TConstraint>>();
+            _messages         = new Queue<TMessage>();
+        }
+
+        private IReadOnlyList<IMessageHandler<TMessage, TConstraint>> GetHandlersSnapshot()
+        {
+            _handlersSnapshot.Clear();
+            _handlersSnapshot.AddRange(_handlers);
+            return _handlersSnapshot;
         }
 
         public void Dispose()
         {
             _handlers.Clear();
+            _handlersSnapshot.Clear();
             _messages.Clear();
         }
 
@@ -66,7 +77,9 @@ namespace MHLab.Utilities.Messaging
 
         private void HandleDelivery(TMessage message)
         {
-            foreach (var handler in _handlers)
+            var handlers = GetHandlersSnapshot();
+            
+            foreach (var handler in handlers)
             {
                 handler.OnMessageDelivered(message);
             }

@@ -33,10 +33,20 @@ namespace MHLab.Utilities.Messaging
         private readonly Dictionary<TypeId, ISubscriber> _subscribersMap;
         private readonly List<ISubscriber>               _subscribers;
 
+        private readonly List<ISubscriber> _subscribersSnapshot;
+
         public Publisher()
         {
-            _subscribersMap = new Dictionary<TypeId, ISubscriber>();
-            _subscribers    = new List<ISubscriber>();
+            _subscribersMap      = new Dictionary<TypeId, ISubscriber>();
+            _subscribers         = new List<ISubscriber>();
+            _subscribersSnapshot = new List<ISubscriber>();
+        }
+
+        private IReadOnlyList<ISubscriber> GetSubscribersSnapshot()
+        {
+            _subscribersSnapshot.Clear();
+            _subscribersSnapshot.AddRange(_subscribers);
+            return _subscribersSnapshot;
         }
 
         public void Dispose()
@@ -45,13 +55,16 @@ namespace MHLab.Utilities.Messaging
             {
                 subscriber.Dispose();
             }
+            _subscribersSnapshot.Clear();
             _subscribers.Clear();
             _subscribersMap.Clear();
         }
 
         public void Publish<TMessage>(TMessage message) where TMessage : struct, TConstraint
         {
-            foreach (var subscriber in _subscribers)
+            var subscribers = GetSubscribersSnapshot();
+            
+            foreach (var subscriber in subscribers)
             {
                 if (subscriber is Subscriber<TMessage, TConstraint> specializedSubscriber)
                 {
@@ -64,7 +77,9 @@ namespace MHLab.Utilities.Messaging
         
         public void PublishImmediate<TMessage>(TMessage message) where TMessage : struct, TConstraint
         {
-            foreach (var subscriber in _subscribers)
+            var subscribers = GetSubscribersSnapshot();
+            
+            foreach (var subscriber in subscribers)
             {
                 if (subscriber is Subscriber<TMessage, TConstraint> specializedSubscriber)
                 {
@@ -78,7 +93,9 @@ namespace MHLab.Utilities.Messaging
         
         public void PublishImmediate<TMessage>(TMessage message, IMessageHistory<TConstraint> history) where TMessage : struct, TConstraint
         {
-            foreach (var subscriber in _subscribers)
+            var subscribers = GetSubscribersSnapshot();
+            
+            foreach (var subscriber in subscribers)
             {
                 if (subscriber is Subscriber<TMessage, TConstraint> specializedSubscriber)
                 {
@@ -139,7 +156,9 @@ namespace MHLab.Utilities.Messaging
 
         public void Deliver(IMessageHistory<TConstraint> history)
         {
-            foreach (var subscriber in _subscribers)
+            var subscribers = GetSubscribersSnapshot();
+            
+            foreach (var subscriber in subscribers)
             {
                 ((ISubscriber<TConstraint>)subscriber).Deliver(history);
             }
@@ -147,7 +166,9 @@ namespace MHLab.Utilities.Messaging
 
         public void Deliver()
         {
-            foreach (var subscriber in _subscribers)
+            var subscribers = GetSubscribersSnapshot();
+            
+            foreach (var subscriber in subscribers)
             {
                 ((ISubscriber<TConstraint>)subscriber).Deliver();
             }
