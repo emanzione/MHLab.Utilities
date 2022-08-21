@@ -32,7 +32,7 @@ namespace MHLab.Utilities.Messaging
 
         private readonly List<IMessageHandler<TMessage, TConstraint>> _handlers;
         private readonly Queue<TMessage>                              _messages;
-        
+
         private readonly List<IMessageHandler<TMessage, TConstraint>> _handlersSnapshot;
 
         public Subscriber()
@@ -78,9 +78,10 @@ namespace MHLab.Utilities.Messaging
         private void HandleDelivery(TMessage message)
         {
             var handlers = GetHandlersSnapshot();
-            
-            foreach (var handler in handlers)
+
+            for (var i = 0; i < handlers.Count; i++)
             {
+                var handler = handlers[i];
                 handler.OnMessageDelivered(message);
             }
         }

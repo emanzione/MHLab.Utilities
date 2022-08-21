@@ -64,8 +64,9 @@ namespace MHLab.Utilities.Messaging
         {
             var subscribers = GetSubscribersSnapshot();
             
-            foreach (var subscriber in subscribers)
+            for (var i = 0; i < subscribers.Count; i++)
             {
+                var subscriber = subscribers[i];
                 if (subscriber is Subscriber<TMessage, TConstraint> specializedSubscriber)
                 {
                     Assert.Debug.NotNull(specializedSubscriber);
@@ -79,8 +80,9 @@ namespace MHLab.Utilities.Messaging
         {
             var subscribers = GetSubscribersSnapshot();
             
-            foreach (var subscriber in subscribers)
+            for (var i = 0; i < subscribers.Count; i++)
             {
+                var subscriber = subscribers[i];
                 if (subscriber is Subscriber<TMessage, TConstraint> specializedSubscriber)
                 {
                     Assert.Debug.NotNull(specializedSubscriber);
@@ -95,8 +97,9 @@ namespace MHLab.Utilities.Messaging
         {
             var subscribers = GetSubscribersSnapshot();
             
-            foreach (var subscriber in subscribers)
+            for (var i = 0; i < subscribers.Count; i++)
             {
+                var subscriber = subscribers[i];
                 if (subscriber is Subscriber<TMessage, TConstraint> specializedSubscriber)
                 {
                     Assert.Debug.NotNull(specializedSubscriber);
@@ -146,8 +149,9 @@ namespace MHLab.Utilities.Messaging
 
             statistics.RegisteredSubscribers = (uint)_subscribers.Count;
 
-            foreach (var subscriber in _subscribers)
+            for (var i = 0; i < _subscribers.Count; i++)
             {
+                var subscriber = _subscribers[i];
                 statistics.MessagesInFlight += subscriber.MessagesCount;
             }
 
@@ -158,8 +162,9 @@ namespace MHLab.Utilities.Messaging
         {
             var subscribers = GetSubscribersSnapshot();
             
-            foreach (var subscriber in subscribers)
+            for (var i = 0; i < subscribers.Count; i++)
             {
+                var subscriber = subscribers[i];
                 ((ISubscriber<TConstraint>)subscriber).Deliver(history);
             }
         }
@@ -168,8 +173,9 @@ namespace MHLab.Utilities.Messaging
         {
             var subscribers = GetSubscribersSnapshot();
             
-            foreach (var subscriber in subscribers)
+            for (var i = 0; i < subscribers.Count; i++)
             {
+                var subscriber = subscribers[i];
                 ((ISubscriber<TConstraint>)subscriber).Deliver();
             }
         }
