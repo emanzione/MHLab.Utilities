@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 using System.Collections.Generic;
+using MHLab.Utilities.Memory;
 
 namespace MHLab.Utilities.Messaging
 {
@@ -33,26 +34,15 @@ namespace MHLab.Utilities.Messaging
         private readonly List<IMessageHandler<TMessage, TConstraint>> _handlers;
         private readonly Queue<TMessage>                              _messages;
 
-        private readonly List<IMessageHandler<TMessage, TConstraint>> _handlersSnapshot;
-
         public Subscriber()
         {
             _handlers         = new List<IMessageHandler<TMessage, TConstraint>>();
-            _handlersSnapshot = new List<IMessageHandler<TMessage, TConstraint>>();
             _messages         = new Queue<TMessage>();
-        }
-
-        private IReadOnlyList<IMessageHandler<TMessage, TConstraint>> GetHandlersSnapshot()
-        {
-            _handlersSnapshot.Clear();
-            _handlersSnapshot.AddRange(_handlers);
-            return _handlersSnapshot;
         }
 
         public void Dispose()
         {
             _handlers.Clear();
-            _handlersSnapshot.Clear();
             _messages.Clear();
         }
 
@@ -77,11 +67,11 @@ namespace MHLab.Utilities.Messaging
 
         private void HandleDelivery(TMessage message)
         {
-            var handlers = GetHandlersSnapshot();
+            var count = _handlers.Count;
 
-            for (var i = 0; i < handlers.Count; i++)
+            for (var i = 0; i < count; i++)
             {
-                var handler = handlers[i];
+                var handler = _handlers[i];
                 handler.OnMessageDelivered(message);
             }
         }

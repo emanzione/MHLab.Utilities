@@ -32,21 +32,13 @@ namespace MHLab.Utilities.Messaging
     {
         private readonly Dictionary<TypeId, ISubscriber> _subscribersMap;
         private readonly List<ISubscriber>               _subscribers;
-
-        private readonly List<ISubscriber> _subscribersSnapshot;
+        private readonly List<HandlerSubscription>       _handlerSubscriptionsToRemove;
 
         public Publisher()
         {
-            _subscribersMap      = new Dictionary<TypeId, ISubscriber>();
-            _subscribers         = new List<ISubscriber>();
-            _subscribersSnapshot = new List<ISubscriber>();
-        }
-
-        private IReadOnlyList<ISubscriber> GetSubscribersSnapshot()
-        {
-            _subscribersSnapshot.Clear();
-            _subscribersSnapshot.AddRange(_subscribers);
-            return _subscribersSnapshot;
+            _subscribersMap               = new Dictionary<TypeId, ISubscriber>();
+            _subscribers                  = new List<ISubscriber>(16);
+            _handlerSubscriptionsToRemove = new List<HandlerSubscription>(16);
         }
 
         public void Dispose()
@@ -55,18 +47,17 @@ namespace MHLab.Utilities.Messaging
             {
                 subscriber.Dispose();
             }
-            _subscribersSnapshot.Clear();
             _subscribers.Clear();
             _subscribersMap.Clear();
         }
 
         public void Publish<TMessage>(TMessage message) where TMessage : struct, TConstraint
         {
-            var subscribers = GetSubscribersSnapshot();
+            var count = _subscribers.Count;
             
-            for (var i = 0; i < subscribers.Count; i++)
+            for (var i = 0; i < count; i++)
             {
-                var subscriber = subscribers[i];
+                var subscriber = _subscribers[i];
                 if (subscriber is Subscriber<TMessage, TConstraint> specializedSubscriber)
                 {
                     Assert.Debug.NotNull(specializedSubscriber);
@@ -78,11 +69,11 @@ namespace MHLab.Utilities.Messaging
         
         public void PublishImmediate<TMessage>(TMessage message) where TMessage : struct, TConstraint
         {
-            var subscribers = GetSubscribersSnapshot();
+            var count = _subscribers.Count;
             
-            for (var i = 0; i < subscribers.Count; i++)
+            for (var i = 0; i < count; i++)
             {
-                var subscriber = subscribers[i];
+                var subscriber = _subscribers[i];
                 if (subscriber is Subscriber<TMessage, TConstraint> specializedSubscriber)
                 {
                     Assert.Debug.NotNull(specializedSubscriber);
@@ -95,11 +86,11 @@ namespace MHLab.Utilities.Messaging
         
         public void PublishImmediate<TMessage>(TMessage message, IMessageHistory<TConstraint> history) where TMessage : struct, TConstraint
         {
-            var subscribers = GetSubscribersSnapshot();
+            var count = _subscribers.Count;
             
-            for (var i = 0; i < subscribers.Count; i++)
+            for (var i = 0; i < count; i++)
             {
-                var subscriber = subscribers[i];
+                var subscriber = _subscribers[i];
                 if (subscriber is Subscriber<TMessage, TConstraint> specializedSubscriber)
                 {
                     Assert.Debug.NotNull(specializedSubscriber);
@@ -135,6 +126,25 @@ namespace MHLab.Utilities.Messaging
 
         public void Unsubscribe(HandlerSubscription subscription)
         {
+            _handlerSubscriptionsToRemove.Add(subscription);
+        }
+
+        private void ProcessUnsubscribes()
+        {
+            var count = _handlerSubscriptionsToRemove.Count;
+            
+            for (var i = 0; i < count; i++)
+            {
+                var handler = _handlerSubscriptionsToRemove[i];
+                CommitUnsubscribe(handler);
+            }
+            
+            if (count > 0)
+                _handlerSubscriptionsToRemove.Clear();
+        }
+        
+        private void CommitUnsubscribe(HandlerSubscription subscription)
+        {
             var messageTypeId = subscription.Id;
 
             if (_subscribersMap.TryGetValue(messageTypeId, out var subscriber))
@@ -160,22 +170,26 @@ namespace MHLab.Utilities.Messaging
 
         public void Deliver(IMessageHistory<TConstraint> history)
         {
-            var subscribers = GetSubscribersSnapshot();
+            ProcessUnsubscribes();
             
-            for (var i = 0; i < subscribers.Count; i++)
+            var count = _subscribers.Count;
+            
+            for (var i = 0; i < count; i++)
             {
-                var subscriber = subscribers[i];
+                var subscriber = _subscribers[i];
                 ((ISubscriber<TConstraint>)subscriber).Deliver(history);
             }
         }
 
         public void Deliver()
         {
-            var subscribers = GetSubscribersSnapshot();
+            ProcessUnsubscribes();
             
-            for (var i = 0; i < subscribers.Count; i++)
+            var count = _subscribers.Count;
+            
+            for (var i = 0; i < count; i++)
             {
-                var subscriber = subscribers[i];
+                var subscriber = _subscribers[i];
                 ((ISubscriber<TConstraint>)subscriber).Deliver();
             }
         }
