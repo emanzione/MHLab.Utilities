@@ -55,5 +55,9 @@ namespace MHLab.Utilities.Messaging
     public interface ISubscriber<TMessage, TConstraint> : ISubscriber<TConstraint> where TMessage : TConstraint
     {
         int Subscribe(IMessageHandler<TMessage, TConstraint> handler);
+
+        void DeliverSingle(TMessage message);
+
+        void DeliverSingle(TMessage message, IMessageHistory<TConstraint> history);
     }
 }

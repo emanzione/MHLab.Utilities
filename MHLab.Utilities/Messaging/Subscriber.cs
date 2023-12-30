@@ -23,21 +23,22 @@ THE SOFTWARE.
 */
 
 using System.Collections.Generic;
-using MHLab.Utilities.Memory;
+using System.Runtime.CompilerServices;
 
 namespace MHLab.Utilities.Messaging
 {
-    internal class Subscriber<TMessage, TConstraint> : ISubscriber<TMessage, TConstraint> where TMessage : TConstraint
+    internal sealed class Subscriber<TMessage, TConstraint> : ISubscriber<TMessage, TConstraint>
+        where TMessage : TConstraint
     {
         public uint MessagesCount { get; private set; }
 
         private readonly List<IMessageHandler<TMessage, TConstraint>> _handlers;
-        private readonly Queue<TMessage>                              _messages;
+        private readonly Queue<TMessage>                                  _messages;
 
         public Subscriber()
         {
-            _handlers         = new List<IMessageHandler<TMessage, TConstraint>>();
-            _messages         = new Queue<TMessage>();
+            _handlers = new List<IMessageHandler<TMessage, TConstraint>>();
+            _messages = new Queue<TMessage>();
         }
 
         public void Dispose()
@@ -46,6 +47,7 @@ namespace MHLab.Utilities.Messaging
             _messages.Clear();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Deliver(IMessageHistory<TConstraint> history)
         {
             while (_messages.Count > 0)
@@ -56,6 +58,7 @@ namespace MHLab.Utilities.Messaging
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Deliver()
         {
             while (_messages.Count > 0)
@@ -64,15 +67,28 @@ namespace MHLab.Utilities.Messaging
                 HandleDelivery(message);
             }
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DeliverSingle(TMessage message)
+        {
+            HandleDelivery(message);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DeliverSingle(TMessage message, IMessageHistory<TConstraint> history)
+        {
+            HandleDelivery(message);
+            history.Push(new MessageEnvelope<TConstraint>(message));
+        }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void HandleDelivery(TMessage message)
         {
             var count = _handlers.Count;
 
             for (var i = 0; i < count; i++)
             {
-                var handler = _handlers[i];
-                handler.OnMessageDelivered(message);
+                _handlers[i].OnMessageDelivered(message);
             }
         }
 
