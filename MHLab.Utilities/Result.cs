@@ -22,17 +22,78 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+using System;
+
 namespace MHLab.Utilities
 {
-    public readonly struct Result<TData>
+    public static class Result
     {
-        public readonly bool  Success;
-        public readonly TData Data;
+        public static Result<TSuccess, TError> Ok<TSuccess, TError>(TSuccess data) =>
+            new (data);
 
-        public Result(bool success, TData data)
+        public static Result<TSuccess, TError> Err<TSuccess, TError>(TError error) =>
+            new (error);
+    }
+
+    public readonly struct Result<TSuccess, TError>
+    {
+        public readonly TSuccess Ok;
+        public readonly TError   Error;
+
+        private readonly bool _success;
+
+        public bool IsOk    => _success;
+        public bool IsError => !IsOk;
+
+        public Result(TSuccess data)
         {
-            Success = success;
-            Data    = data;
+            Ok    = data;
+            Error = default;
+
+            _success = true;
         }
+
+        public Result(TError data)
+        {
+            Ok    = default;
+            Error = data;
+
+            _success = false;
+        }
+        
+        private static void ThrowInvalidOperation()
+        {
+            throw new InvalidOperationException();
+        }
+
+        public static implicit operator Result<TSuccess, TError>(TSuccess data) => new (data);
+        public static implicit operator Result<TSuccess, TError>(TError data)   => new (data);
+
+        public static implicit operator TSuccess(Result<TSuccess, TError> data)
+        {
+#if DEBUG
+            if (data._success == false)
+            {
+                ThrowInvalidOperation();
+                return default;
+            }
+#endif
+            
+            return data.Ok;
+        }
+
+        public static implicit operator TError(Result<TSuccess, TError> data)
+        {
+#if DEBUG
+            if (data._success)
+            {
+                ThrowInvalidOperation();
+                return default;
+            }
+#endif
+            return data.Error;
+        }
+
+        public static implicit operator bool(Result<TSuccess, TError> data)   => data._success;
     }
 }
