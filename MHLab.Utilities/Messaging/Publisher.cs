@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MHLab.Utilities.Asserts;
 using MHLab.Utilities.Types;
 
@@ -104,6 +105,27 @@ namespace MHLab.Utilities.Messaging
                     break;
                 }
             }
+        }
+
+        public async ValueTask PublishAsync<TMessage>(TMessage message) where TMessage : struct, TConstraint
+        {
+            var count = _subscribers.Count;
+
+            var tasks = new List<Task>();
+            
+            for (var i = 0; i < count; i++)
+            {
+                if (_subscribers[i] is Subscriber<TMessage, TConstraint> specializedSubscriber)
+                {
+                    Assert.Debug.NotNull(specializedSubscriber);
+                    var completionSource = new TaskCompletionSource<bool>();
+                    specializedSubscriber.AddAsyncMessage(message, completionSource);
+                    tasks.Add(completionSource.Task);
+                    break;
+                }
+            }
+
+            await Task.WhenAll(tasks);
         }
 
         public HandlerSubscription Subscribe<TMessage>(IMessageHandler<TMessage, TConstraint> handler)

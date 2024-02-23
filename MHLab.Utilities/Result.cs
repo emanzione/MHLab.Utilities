@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 using System;
+using System.Diagnostics;
 
 namespace MHLab.Utilities
 {
@@ -35,6 +36,7 @@ namespace MHLab.Utilities
             new (error);
     }
 
+    [DebuggerDisplay("IsOk = {IsOk}")]
     public readonly struct Result<TSuccess, TError>
     {
         public readonly TSuccess Ok;
@@ -95,5 +97,10 @@ namespace MHLab.Utilities
         }
 
         public static implicit operator bool(Result<TSuccess, TError> data)   => data._success;
+        
+        public override string ToString()
+        {
+            return (IsOk) ? Ok.ToString() : Error.ToString();
+        }
     }
 }

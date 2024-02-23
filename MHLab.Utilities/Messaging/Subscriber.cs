@@ -24,21 +24,40 @@ THE SOFTWARE.
 
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace MHLab.Utilities.Messaging
 {
     internal sealed class Subscriber<TMessage, TConstraint> : ISubscriber<TMessage, TConstraint>
         where TMessage : TConstraint
     {
+        private readonly struct QueuedMessage
+        {
+            public readonly TMessage                       Message;
+            public readonly Optional<TaskCompletionSource<bool>> CompletionSource;
+
+            public QueuedMessage(TMessage message, Optional<TaskCompletionSource<bool>> completionSource)
+            {
+                Message          = message;
+                CompletionSource = completionSource;
+            }
+            
+            public QueuedMessage(TMessage message)
+            {
+                Message          = message;
+                CompletionSource = Optional<TaskCompletionSource<bool>>.None();
+            }
+        }
+
         public uint MessagesCount { get; private set; }
 
         private readonly List<IMessageHandler<TMessage, TConstraint>> _handlers;
-        private readonly Queue<TMessage>                                  _messages;
+        private readonly Queue<QueuedMessage>                         _messages;
 
         public Subscriber()
         {
             _handlers = new List<IMessageHandler<TMessage, TConstraint>>();
-            _messages = new Queue<TMessage>();
+            _messages = new Queue<QueuedMessage>();
         }
 
         public void Dispose()
@@ -54,7 +73,7 @@ namespace MHLab.Utilities.Messaging
             {
                 var message = _messages.Dequeue();
                 HandleDelivery(message);
-                history.Push(new MessageEnvelope<TConstraint>(message));
+                history.Push(new MessageEnvelope<TConstraint>(message.Message));
             }
         }
 
@@ -67,34 +86,44 @@ namespace MHLab.Utilities.Messaging
                 HandleDelivery(message);
             }
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DeliverSingle(TMessage message)
         {
-            HandleDelivery(message);
+            HandleDelivery(new QueuedMessage(message));
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DeliverSingle(TMessage message, IMessageHistory<TConstraint> history)
         {
-            HandleDelivery(message);
+            HandleDelivery(new QueuedMessage(message));
             history.Push(new MessageEnvelope<TConstraint>(message));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void HandleDelivery(TMessage message)
+        private void HandleDelivery(QueuedMessage message)
         {
             var count = _handlers.Count;
 
             for (var i = 0; i < count; i++)
             {
-                _handlers[i].OnMessageDelivered(message);
+                _handlers[i].OnMessageDelivered(message.Message);
+
+                if (message.CompletionSource)
+                {
+                    message.CompletionSource.Value.SetResult(true);
+                }
             }
         }
 
         public void AddMessage(TMessage message)
         {
-            _messages.Enqueue(message);
+            _messages.Enqueue(new QueuedMessage(message));
+        }
+
+        public void AddAsyncMessage(TMessage message, TaskCompletionSource<bool> completionSource)
+        {
+            _messages.Enqueue(new QueuedMessage(message, completionSource));
         }
 
         public int Subscribe(IMessageHandler<TMessage, TConstraint> handler)

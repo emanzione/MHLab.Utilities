@@ -22,17 +22,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-using System;
+using System.Diagnostics;
 
 namespace MHLab.Utilities
 {
+    [DebuggerDisplay("HasValue = {HasValue}")]
     public readonly struct Optional<TPayload>
     {
         public readonly TPayload Value;
 
-        public bool HasValue => _hasValue;
-
         private readonly bool _hasValue;
+
+        public bool HasValue => _hasValue;
 
         public Optional(TPayload data)
         {
@@ -40,34 +41,20 @@ namespace MHLab.Utilities
             _hasValue = true;
         }
 
-        public Optional()
+        public static implicit operator Optional<TPayload>(TPayload data) => new Optional<TPayload>(data);
+
+        public static implicit operator TPayload(Optional<TPayload> optional) => optional.Value;
+        
+        public static implicit operator bool(Optional<TPayload> optional) => optional.HasValue;
+
+        public static Optional<TPayload> Some(TPayload payload) => new Optional<TPayload>(payload);
+        public static Optional<TPayload> None()                 => new Optional<TPayload>();
+
+        public override string ToString()
         {
-            _hasValue = false;
-            Value     = default;
+            const string noneString = "None";
+            
+            return (HasValue) ? Value.ToString() : noneString;
         }
-
-        private static void ThrowInvalidOperation()
-        {
-            throw new InvalidOperationException();
-        }
-
-        public static implicit operator Optional<TPayload>(TPayload data) => new(data);
-
-        public static implicit operator TPayload(Optional<TPayload> optional)
-        {
-#if DEBUG
-            if (optional._hasValue == false)
-            {
-                ThrowInvalidOperation();
-                return default;
-            }
-#endif
-            return optional.Value;
-        }
-
-        public static implicit operator bool(Optional<TPayload> data) => data._hasValue;
-
-        public static Optional<TPayload> Some(TPayload payload) => new(payload);
-        public static Optional<TPayload> None()                 => new();
     }
 }

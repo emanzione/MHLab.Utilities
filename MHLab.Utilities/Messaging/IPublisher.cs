@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 using System;
+using System.Threading.Tasks;
 
 namespace MHLab.Utilities.Messaging
 {
@@ -31,6 +32,7 @@ namespace MHLab.Utilities.Messaging
         void Publish<TMessage>(TMessage message) where TMessage : struct, TConstraint;
         void PublishImmediate<TMessage>(TMessage message) where TMessage : struct, TConstraint;
         void PublishImmediate<TMessage>(TMessage message, IMessageHistory<TConstraint> history) where TMessage : struct, TConstraint;
+        ValueTask PublishAsync<TMessage>(TMessage message) where TMessage : struct, TConstraint;
 
         HandlerSubscription Subscribe<TMessage>(IMessageHandler<TMessage, TConstraint> handler)
             where TMessage : struct, TConstraint;
