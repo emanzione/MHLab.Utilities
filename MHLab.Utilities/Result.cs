@@ -22,85 +22,109 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-using System;
 using System.Diagnostics;
 
 namespace MHLab.Utilities
 {
-    public static class Result
-    {
-        public static Result<TSuccess, TError> Ok<TSuccess, TError>(TSuccess data) =>
-            new (data);
-
-        public static Result<TSuccess, TError> Err<TSuccess, TError>(TError error) =>
-            new (error);
-    }
-
-    [DebuggerDisplay("IsOk = {IsOk}")]
+    [DebuggerDisplay("{ToDebuggerString(),nq}")]
     public readonly struct Result<TSuccess, TError>
     {
-        public readonly TSuccess Ok;
-        public readonly TError   Error;
+        private readonly Either<TSuccess, TError> _payload;
 
-        private readonly bool _success;
-
-        public bool IsOk    => _success;
+        public bool IsOk => _payload.IsLeft;
         public bool IsError => !IsOk;
 
         public Result(TSuccess data)
         {
-            Ok    = data;
-            Error = default;
-
-            _success = true;
+            _payload = data;
         }
 
         public Result(TError data)
         {
-            Ok    = default;
-            Error = data;
-
-            _success = false;
+            _payload = data;
         }
         
-        private static void ThrowInvalidOperation()
-        {
-            throw new InvalidOperationException();
-        }
+        public static Result<TSuccess, TError> From(TSuccess data) => new(data);
+        public static Result<TSuccess, TError> From(TError error) => new(error);
 
         public static implicit operator Result<TSuccess, TError>(TSuccess data) => new (data);
-        public static implicit operator Result<TSuccess, TError>(TError data)   => new (data);
+        public static implicit operator Result<TSuccess, TError>(TError data) => new (data);
 
-        public static implicit operator TSuccess(Result<TSuccess, TError> data)
-        {
-#if DEBUG
-            if (data._success == false)
-            {
-                ThrowInvalidOperation();
-                return default;
-            }
-#endif
-            
-            return data.Ok;
-        }
+        public static implicit operator TSuccess(Result<TSuccess, TError> data) => data.Unwrap();
+        public static implicit operator TError(Result<TSuccess, TError> data) => data.UnwrapError();
 
-        public static implicit operator TError(Result<TSuccess, TError> data)
-        {
-#if DEBUG
-            if (data._success)
-            {
-                ThrowInvalidOperation();
-                return default;
-            }
-#endif
-            return data.Error;
-        }
+        public static implicit operator bool(Result<TSuccess, TError> data) => data.IsOk;
 
-        public static implicit operator bool(Result<TSuccess, TError> data)   => data._success;
-        
         public override string ToString()
         {
-            return (IsOk) ? Ok.ToString() : Error.ToString();
+    #pragma warning disable CS8603 // Possible null reference return.
+    #pragma warning disable CS8602 // Dereference of a possibly null reference.
+            return (IsOk) 
+                ? Unwrap().ToString()
+                : UnwrapError().ToString();
+    #pragma warning restore CS8602 // Dereference of a possibly null reference.
+    #pragma warning restore CS8603 // Possible null reference return.
+        }
+
+        public TSuccess Unwrap()
+        {
+            return _payload.UnwrapLeft();
+        }
+
+        public bool TryUnwrap(out TSuccess value)
+        {
+            if (IsOk)
+            {
+                value = Unwrap();
+            }
+            else
+            {
+    #pragma warning disable CS8601 // Possible null reference assignment.
+                value = default;
+    #pragma warning restore CS8601 // Possible null reference assignment.
+            }
+            
+            return IsOk;
+        }
+
+        public TSuccess UnwrapOrDefault(TSuccess defaultValue)
+        {
+            return _payload.UnwrapLeftOrDefault(defaultValue);
+        }
+
+        public TError UnwrapError()
+        {
+            return _payload.UnwrapRight();
+        }
+
+        public bool TryUnwrapError(out TError value)
+        {
+            if (IsError)
+            {
+                value = UnwrapError();
+            }
+            else
+            {
+    #pragma warning disable CS8601 // Possible null reference assignment.
+                value = default;
+    #pragma warning restore CS8601 // Possible null reference assignment.
+            }
+            
+            return IsError;
+        }
+
+        public TError UnwrapErrorOrDefault(TError defaultValue)
+        {
+            return _payload.UnwrapRightOrDefault(defaultValue);
+        }
+
+        private string ToDebuggerString()
+        {
+    #pragma warning disable CS8602 // Dereference of a possibly null reference.
+            return (IsOk)
+                ? $"Ok: {Unwrap().ToString()}"
+                : $"Error: {UnwrapError().ToString()}";
+    #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
     }
 }

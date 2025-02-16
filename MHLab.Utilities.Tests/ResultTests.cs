@@ -17,7 +17,7 @@ public class ResultTests
     [Test]
     public void IsSuccessful_Test()
     {
-        var result = Result.Ok<SuccessPayload, ErrorPayload>(new SuccessPayload()
+        var result = Result<SuccessPayload, ErrorPayload>.From(new SuccessPayload()
         {
             Data = 42
         });
@@ -28,7 +28,7 @@ public class ResultTests
     [Test]
     public void IsNotSuccessful_Test()
     {
-        var result = Result.Err<SuccessPayload, ErrorPayload>(new ErrorPayload()
+        var result = Result<SuccessPayload, ErrorPayload>.From(new ErrorPayload()
         {
             Error = 42
         });

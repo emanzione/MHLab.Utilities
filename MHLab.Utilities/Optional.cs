@@ -22,39 +22,91 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+using System;
 using System.Diagnostics;
 
 namespace MHLab.Utilities
 {
-    [DebuggerDisplay("HasValue = {HasValue}")]
+    [DebuggerDisplay("{ToDebuggerString(),nq}")]
     public readonly struct Optional<TPayload>
     {
-        public readonly TPayload Value;
+        private static readonly bool IsValueType = typeof(TPayload).IsValueType;
 
+        private readonly TPayload _value;
         private readonly bool _hasValue;
 
         public bool HasValue => _hasValue;
 
         public Optional(TPayload data)
         {
-            Value     = data;
+            if (IsNull(data))
+            {
+                _hasValue = false;
+                _value = default!;
+                return;
+            }
+
+            _value = data;
             _hasValue = true;
         }
 
-        public static implicit operator Optional<TPayload>(TPayload data) => new Optional<TPayload>(data);
+        private static bool IsNull(TPayload data)
+        {
+            if (IsValueType) return false;
 
-        public static implicit operator TPayload(Optional<TPayload> optional) => optional.Value;
+            return data == null;
+        }
         
+        public static Optional<TPayload> From(TPayload data) => new(data);
+
+        public static implicit operator Optional<TPayload>(TPayload data) => new(data);
+        public static implicit operator TPayload(Optional<TPayload> optional) => optional._value;
         public static implicit operator bool(Optional<TPayload> optional) => optional.HasValue;
 
-        public static Optional<TPayload> Some(TPayload payload) => new Optional<TPayload>(payload);
-        public static Optional<TPayload> None()                 => new Optional<TPayload>();
+        public static Optional<TPayload> Some(TPayload payload) => new(payload);
+        public static Optional<TPayload> None() => new();
 
         public override string ToString()
         {
             const string noneString = "None";
-            
-            return (HasValue) ? Value.ToString() : noneString;
+
+    #pragma warning disable CS8603 // Possible null reference return.
+    #pragma warning disable CS8602 // Dereference of a possibly null reference.
+            return (HasValue) ? _value.ToString() : noneString;
+    #pragma warning restore CS8602 // Dereference of a possibly null reference.
+    #pragma warning restore CS8603 // Possible null reference return.
+        }
+
+        public TPayload Unwrap()
+        {
+            if (HasValue)
+                return _value;
+
+            const string error = "Cannot Unwrap: there is no value";
+            throw new InvalidOperationException(error);
+        }
+        
+        public TPayload UnwrapOrDefault(TPayload defaultValue)
+        {
+            return HasValue ? _value : defaultValue;
+        }
+
+        public bool TryUnwrap(out TPayload value)
+        {
+            value = _value;
+            return HasValue;
+        }
+
+        internal string ToDebuggerString()
+        {
+            var output = $"HasValue = {HasValue}";
+
+            if (HasValue)
+            {
+                output += $", Value = {ToString()}";
+            }
+
+            return output;
         }
     }
 }
